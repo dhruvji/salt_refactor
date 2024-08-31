@@ -336,7 +336,7 @@ def finger_master(hash_type=None):
     if hash_type is None:
         hash_type = __opts__["hash_type"]
 
-    fingerprint = salt.utils.crypt.pem_finger(
+    fingerprint = salt.utils.crypt.pem_fingerprint(
         os.path.join(__opts__["pki_dir"], keyname), sum_type=hash_type
     )
     return {"local": {keyname: fingerprint}}

@@ -26,7 +26,7 @@ def pub_key_data():
 def test_pem_finger_file_line_endings(tmp_path, pub_key_data, line_ending):
     key_file = tmp_path / "master_crlf.pub"
     key_file.write_bytes(line_ending.join(pub_key_data).encode("utf-8"))
-    finger = salt.utils.crypt.pem_finger(path=str(key_file))
+    finger = salt.utils.crypt.pem_fingerprint(path=str(key_file))
     assert (
         finger
         == "9b:42:66:92:8a:d1:b9:27:42:e0:6d:f3:12:c9:74:74:b0:e0:0e:42:83:87:62:ad:95:49:9d:6f:8e:d0:ed:35"
@@ -35,7 +35,7 @@ def test_pem_finger_file_line_endings(tmp_path, pub_key_data, line_ending):
 
 @pytest.mark.parametrize("key", [b"123abc", "123abc"])
 def test_pem_finger_key(key):
-    finger = salt.utils.crypt.pem_finger(key=key)
+    finger = salt.utils.crypt.pem_fingerprint(key=key)
     assert (
         finger
         == "dd:13:0a:84:9d:7b:29:e5:54:1b:05:d2:f7:f8:6a:4a:cd:4f:1e:c5:98:c1:c9:43:87:83:f5:6b:c4:f0:ff:80"
@@ -43,7 +43,7 @@ def test_pem_finger_key(key):
 
 
 def test_pem_finger_sha512():
-    finger = salt.utils.crypt.pem_finger(key="123abc", sum_type="sha512")
+    finger = salt.utils.crypt.pem_fingerprint(key="123abc", sum_type="sha512")
     assert (
         finger
         == "7b:6a:d7:9b:34:6f:b6:95:12:75:34:39:48:e1:3c:1b:4e:bc:a8:2a:54:52:a6:c5:d1:56:84:37:7f:09:6c:a9:"

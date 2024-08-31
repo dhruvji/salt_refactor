@@ -2072,7 +2072,7 @@ class Map(Cloud):
             master_temp_pub = salt.utils.files.mkstemp()
             with salt.utils.files.fopen(master_temp_pub, "w") as mtp:
                 mtp.write(pub)
-            master_finger = salt.utils.crypt.pem_finger(
+            master_finger = salt.utils.crypt.pem_fingerprint(
                 master_temp_pub, sum_type=self.opts["hash_type"]
             )
             os.unlink(master_temp_pub)
@@ -2154,7 +2154,7 @@ class Map(Cloud):
             # mitigate man-in-the-middle attacks
             master_pub = os.path.join(self.opts["pki_dir"], "master.pub")
             if os.path.isfile(master_pub):
-                master_finger = salt.utils.crypt.pem_finger(
+                master_finger = salt.utils.crypt.pem_fingerprint(
                     master_pub, sum_type=self.opts["hash_type"]
                 )
 

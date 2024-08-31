@@ -23,7 +23,7 @@ def finger(hash_type=None):
     if hash_type is None:
         hash_type = __opts__["hash_type"]
 
-    return salt.utils.crypt.pem_finger(
+    return salt.utils.crypt.pem_fingerprintprint(
         os.path.join(__opts__["pki_dir"], "minion.pub"), sum_type=hash_type
     )
 
@@ -44,6 +44,6 @@ def finger_master(hash_type=None):
     if hash_type is None:
         hash_type = __opts__["hash_type"]
 
-    return salt.utils.crypt.pem_finger(
+    return salt.utils.crypt.pem_fingerprint(
         os.path.join(__opts__["pki_dir"], "minion_master.pub"), sum_type=hash_type
     )

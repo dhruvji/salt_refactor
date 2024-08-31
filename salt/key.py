@@ -363,7 +363,7 @@ class Key:
             keydir, keyname, keysize, user
         )
         salt.crypt.gen_keys(keydir, keyname, keysize, user, self.passphrase)
-        return salt.utils.crypt.pem_finger(os.path.join(keydir, keyname + ".pub"))
+        return salt.utils.crypt.pem_fingerprint(os.path.join(keydir, keyname + ".pub"))
 
     def gen_signature(self, privkey, pubkey, sig_path):
         """
@@ -837,7 +837,7 @@ class Key:
                     path = os.path.join(self.pki_dir, key)
                 else:
                     path = os.path.join(self.pki_dir, status, key)
-                ret[status][key] = salt.utils.crypt.pem_finger(path, sum_type=hash_type)
+                ret[status][key] = salt.utils.crypt.pem_fingerprint(path, sum_type=hash_type)
         return ret
 
     def finger_all(self, hash_type=None):
@@ -855,7 +855,7 @@ class Key:
                     path = os.path.join(self.pki_dir, key)
                 else:
                     path = os.path.join(self.pki_dir, status, key)
-                ret[status][key] = salt.utils.crypt.pem_finger(path, sum_type=hash_type)
+                ret[status][key] = salt.utils.crypt.pem_fingerprint(path, sum_type=hash_type)
         return ret
 
     def __enter__(self):

@@ -88,7 +88,7 @@ def decrypt(
     return rend_func(data, translate_newlines=translate_newlines)
 
 
-def pem_finger(path=None, key=None, sum_type="sha256"):
+def pem_fingerprint(path=None, key=None, sum_type="sha256"):
     """
     Pass in either a raw pem string, or the path on disk to the location of a
     pem file, and the type of cryptographic hash to use. The default is SHA256.

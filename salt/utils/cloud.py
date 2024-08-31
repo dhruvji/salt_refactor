@@ -2820,7 +2820,7 @@ def request_minion_cachedir(
         base = __opts__["cachedir"]
 
     if not fingerprint and pubkey is not None:
-        fingerprint = salt.utils.crypt.pem_finger(
+        fingerprint = salt.utils.crypt.pem_fingerprint(
             key=pubkey, sum_type=(opts and opts.get("hash_type") or "sha256")
         )
 
