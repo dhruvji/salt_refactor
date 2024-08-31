@@ -1350,7 +1350,7 @@ def filter_falsey(data, recurse_depth=None, ignore_types=()):
 
 
 def recursive_diff(
-    old, new, ignore_keys=None, ignore_order=False, ignore_missing_keys=False
+    old, new, ignore_keys=None, ignore_order=False, ignore_missing_keys=False, log=False
 ):
     """
     Performs a recursive diff on mappings and/or iterables and returns the result
@@ -1365,6 +1365,7 @@ def recursive_diff(
     :param bool ignore_order: Compare ordered mapping/iterables as if they were unordered.
     :param bool ignore_missing_keys: Do not return keys only present in ``old``
         but missing in ``new``. Only works for regular dicts.
+    :param bool log: Log the differences found during comparison.
 
     :return dict: Returns dict with keys 'old' and 'new' containing the differences.
     """
@@ -1372,6 +1373,7 @@ def recursive_diff(
     res = {}
     ret_old = copy.deepcopy(old)
     ret_new = copy.deepcopy(new)
+    
     if (
         isinstance(old, OrderedDict)
         and isinstance(new, OrderedDict)
@@ -1380,10 +1382,8 @@ def recursive_diff(
         append_old, append_new = [], []
         if len(old) != len(new):
             min_length = min(len(old), len(new))
-            # The list coercion is required for Py3
             append_old = list(old.keys())[min_length:]
             append_new = list(new.keys())[min_length:]
-        # Compare ordered
         for key_old, key_new in zip(old, new):
             if key_old == key_new:
                 if key_old in ignore_keys:
@@ -1396,8 +1396,9 @@ def recursive_diff(
                         ignore_keys=ignore_keys,
                         ignore_order=ignore_order,
                         ignore_missing_keys=ignore_missing_keys,
+                        log=log
                     )
-                    if not res:  # Equal
+                    if not res:
                         del ret_old[key_old]
                         del ret_new[key_new]
                     else:
@@ -1408,14 +1409,12 @@ def recursive_diff(
                     del ret_old[key_old]
                 if key_new in ignore_keys:
                     del ret_new[key_new]
-        # If the OrderedDicts were of inequal length, add the remaining key/values.
         for item in append_old:
             ret_old[item] = old[item]
         for item in append_new:
             ret_new[item] = new[item]
         ret = {"old": ret_old, "new": ret_new} if ret_old or ret_new else {}
     elif isinstance(old, Mapping) and isinstance(new, Mapping):
-        # Compare unordered
         for key in set(list(old) + list(new)):
             if key in ignore_keys:
                 ret_old.pop(key, None)
@@ -1429,8 +1428,9 @@ def recursive_diff(
                     ignore_keys=ignore_keys,
                     ignore_order=ignore_order,
                     ignore_missing_keys=ignore_missing_keys,
+                    log=log
                 )
-                if not res:  # Equal
+                if not res:
                     del ret_old[key]
                     del ret_new[key]
                 else:
@@ -1440,7 +1440,6 @@ def recursive_diff(
     elif isinstance(old, set) and isinstance(new, set):
         ret = {"old": old - new, "new": new - old} if old - new or new - old else {}
     elif is_iter(old) and is_iter(new):
-        # Create a list so we can edit on an index-basis.
         list_old = list(ret_old)
         list_new = list(ret_new)
         if ignore_order:
@@ -1452,6 +1451,7 @@ def recursive_diff(
                         ignore_keys=ignore_keys,
                         ignore_order=ignore_order,
                         ignore_missing_keys=ignore_missing_keys,
+                        log=log
                     )
                     if not res:
                         list_old.remove(item_old)
@@ -1466,8 +1466,9 @@ def recursive_diff(
                     ignore_keys=ignore_keys,
                     ignore_order=ignore_order,
                     ignore_missing_keys=ignore_missing_keys,
+                    log=log
                 )
-                if not res:  # Equal
+                if not res:
                     remove_indices.append(index)
                 else:
                     list_old[index] = res["old"]
@@ -1475,9 +1476,6 @@ def recursive_diff(
             for index in reversed(remove_indices):
                 list_old.pop(index)
                 list_new.pop(index)
-        # Instantiate a new whatever-it-was using the list as iterable source.
-        # This may not be the most optimized in way of speed and memory usage,
-        # but it will work for all iterable types.
         ret = (
             {"old": type(old)(list_old), "new": type(new)(list_new)}
             if list_old or list_new
@@ -1485,6 +1483,10 @@ def recursive_diff(
         )
     else:
         ret = {} if old == new else {"old": ret_old, "new": ret_new}
+    
+    if log and ret:
+        log.debug(f"Differences found: {ret}")
+        
     return ret
 
 

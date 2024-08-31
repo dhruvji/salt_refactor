@@ -203,7 +203,7 @@ def value_present(name, key, v_data, v_type="REG_DWORD", policy_class="Machine")
             ret["comment"] += "\n"
         ret["comment"] += "Failed to set registry value"
 
-    changes = salt.utils.data.recursive_diff(old, new)
+    changes = salt.utils.data.recursive_diff(old, new, log=True)
 
     if changes:
         ret["changes"] = changes
@@ -287,7 +287,7 @@ def value_disabled(name, key, policy_class="Machine"):
             ret["comment"] += "\n"
         ret["comment"] += "Failed to remove registry value"
 
-    changes = salt.utils.data.recursive_diff(old, new)
+    changes = salt.utils.data.recursive_diff(old, new, log=True)
 
     if changes:
         ret["changes"] = changes
@@ -371,7 +371,7 @@ def value_absent(name, key, policy_class="Machine"):
             ret["comment"] += "\n"
         ret["comment"] += "Failed to delete registry value"
 
-    changes = salt.utils.data.recursive_diff(old, new)
+    changes = salt.utils.data.recursive_diff(old, new, log=True)
 
     if changes:
         ret["changes"] = changes
