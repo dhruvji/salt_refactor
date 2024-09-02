@@ -13,14 +13,14 @@ import copy
 import hashlib
 import hmac
 import logging
+import pprint
 import random
 import re
+import requests
 import time
 import urllib.parse
 import xml.etree.ElementTree as ET
 from datetime import datetime
-
-import requests
 
 import salt.config
 import salt.utils.hashutils
@@ -39,9 +39,7 @@ AWS_RETRY_CODES = [
     "InsufficientReservedInstanceCapacity",
 ]
 AWS_METADATA_TIMEOUT = 3.05
-
 AWS_MAX_RETRIES = 7
-
 IROLE_CODE = "use-instance-role-credentials"
 __AccessKeyId__ = ""
 __SecretAccessKey__ = ""
@@ -54,26 +52,19 @@ __IMDS_Token__ = None
 
 def sleep_exponential_backoff(attempts):
     """
-    backoff an exponential amount of time to throttle requests
+    Backoff an exponential amount of time to throttle requests
     during "API Rate Exceeded" failures as suggested by the AWS documentation here:
     https://docs.aws.amazon.com/AWSEC2/latest/APIReference/query-api-troubleshooting.html
     and also here:
     https://docs.aws.amazon.com/general/latest/gr/api-retries.html
-    Failure to implement this approach results in a failure rate of >30% when using salt-cloud with
-    "--parallel" when creating 50 or more instances with a fixed delay of 2 seconds.
-    A failure rate of >10% is observed when using the salt-api with an asynchronous client
-    specified (runner_async).
     """
     time.sleep(random.uniform(1, 2**attempts))
 
 
 def get_metadata(path, refresh_token_if_needed=True):
     """
-    Get the instance metadata at the provided path
+    Get the instance metadata at the provided path.
     The path argument will be prepended by http://169.254.169.254/latest/
-    If using IMDSv2 with tokens required, the token will be fetched and used for subsequent requests
-    (unless refresh_token_if_needed is False, in which case this will fail if tokens are required
-    and no token was already cached)
     """
     global __IMDS_Token__
 
@@ -81,7 +72,6 @@ def get_metadata(path, refresh_token_if_needed=True):
     if __IMDS_Token__ is not None:
         headers["X-aws-ec2-metadata-token"] = __IMDS_Token__
 
-    # Connections to instance meta-data must fail fast and never be proxied
     result = requests.get(
         f"http://169.254.169.254/latest/{path}",
         proxies={"http": ""},
@@ -90,7 +80,6 @@ def get_metadata(path, refresh_token_if_needed=True):
     )
 
     if result.status_code == 401 and refresh_token_if_needed:
-        # Probably using IMDSv2 with tokens required, so fetch token and retry
         token_result = requests.put(
             "http://169.254.169.254/latest/api/token",
             headers={"X-aws-ec2-metadata-token-ttl-seconds": "21600"},
@@ -107,24 +96,16 @@ def get_metadata(path, refresh_token_if_needed=True):
 
 def creds(provider):
     """
-    Return the credentials for AWS signing.  This could be just the id and key
-    specified in the provider configuration, or if the id or key is set to the
-    literal string 'use-instance-role-credentials' creds will pull the instance
-    role credentials from the meta data, cache them, and provide them instead.
+    Return the credentials for AWS signing.
     """
-    # Declare globals
     global __AccessKeyId__, __SecretAccessKey__, __Token__, __Expiration__
 
     ret_credentials = ()
 
-    # if id or key is 'use-instance-role-credentials', pull them from meta-data
-    ## if needed
     if provider["id"] == IROLE_CODE or provider["key"] == IROLE_CODE:
-        # Check to see if we have cache credentials that are still good
         if not __Expiration__ or __Expiration__ < datetime.utcnow().strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         ):
-            # We don't have any cached credentials, or they are expired, get them
             try:
                 result = get_metadata("meta-data/iam/security-credentials/")
                 role = result.text
@@ -159,15 +140,11 @@ def creds(provider):
 
 def sig2(method, endpoint, params, provider, aws_api_version):
     """
-    Sign a query against AWS services using Signature Version 2 Signing
-    Process. This is documented at:
-
-    http://docs.aws.amazon.com/general/latest/gr/signature-version-2.html
+    Sign a query against AWS services using Signature Version 2 Signing Process.
     """
     timenow = datetime.utcnow()
     timestamp = timenow.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # Retrieve access credentials from meta-data, or use provided
     access_key_id, secret_access_key, token = creds(provider)
 
     params_with_headers = params.copy()
@@ -190,7 +167,6 @@ def sig2(method, endpoint, params, provider, aws_api_version):
     sig = binascii.b2a_base64(hashed.digest())
     params_with_headers["Signature"] = sig.strip()
 
-    # Add in security token if we have one
     if token != "":
         params_with_headers["SecurityToken"] = token
 
@@ -200,7 +176,6 @@ def sig2(method, endpoint, params, provider, aws_api_version):
 def assumed_creds(prov_dict, role_arn, location=None):
     valid_session_name_re = re.compile("[^a-z0-9A-Z+=,.@-]")
 
-    # current time in epoch seconds
     now = time.mktime(datetime.utcnow().timetuple())
 
     for key, creds in copy.deepcopy(__AssumeCache__).items():
@@ -274,16 +249,10 @@ def sig4(
     payload_hash=None,
 ):
     """
-    Sign a query against AWS services using Signature Version 4 Signing
-    Process. This is documented at:
-
-    http://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html
-    http://docs.aws.amazon.com/general/latest/gr/sigv4-signed-request-examples.html
-    http://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
+    Sign a query against AWS services using Signature Version 4 Signing Process.
     """
     timenow = datetime.utcnow()
 
-    # Retrieve access credentials from meta-data, or use provided
     if role_arn is None:
         access_key_id, secret_access_key, token = creds(prov_dict)
     else:
@@ -309,8 +278,6 @@ def sig4(
     if isinstance(headers, dict):
         new_headers = headers.copy()
 
-    # Create payload hash (hash of the request body content). For GET
-    # requests, the payload is an empty string ('').
     if not payload_hash:
         payload_hash = salt.utils.hashutils.sha256_digest(data)
 
@@ -332,12 +299,10 @@ def sig4(
 
     algorithm = "AWS4-HMAC-SHA256"
 
-    # Combine elements to create create canonical request
     canonical_request = "\n".join(
         (method, uri, querystring, canonical_headers, signed_headers, payload_hash)
     )
 
-    # Create the string to sign
     credential_scope = "/".join((datestamp, location, product, "aws4_request"))
     string_to_sign = "\n".join(
         (
@@ -348,15 +313,12 @@ def sig4(
         )
     )
 
-    # Create the signing key using the function defined above.
     signing_key = _sig_key(secret_access_key, datestamp, location, product)
 
-    # Sign the string_to_sign using the signing_key
     signature = hmac.new(
         signing_key, string_to_sign.encode("utf-8"), hashlib.sha256
     ).hexdigest()
 
-    # Add signing information to the request
     authorization_header = "{} Credential={}/{}, SignedHeaders={}, Signature={}".format(
         algorithm,
         access_key_id,
@@ -373,18 +335,14 @@ def sig4(
 
 def _sign(key, msg):
     """
-    Key derivation functions. See:
-
-    http://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html#signature-v4-examples-python
+    Key derivation functions.
     """
     return hmac.new(key, msg.encode("utf-8"), hashlib.sha256).digest()
 
 
 def _sig_key(key, date_stamp, regionName, serviceName):
     """
-    Get a signature key. See:
-
-    http://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html#signature-v4-examples-python
+    Get a signature key.
     """
     kDate = _sign(("AWS4" + key).encode("utf-8"), date_stamp)
     if regionName:
@@ -410,33 +368,7 @@ def query(
     sigver="2",
 ):
     """
-    Perform a query against AWS services using Signature Version 2 Signing
-    Process. This is documented at:
-
-    http://docs.aws.amazon.com/general/latest/gr/signature-version-2.html
-
-    Regions and endpoints are documented at:
-
-    http://docs.aws.amazon.com/general/latest/gr/rande.html
-
-    Default ``product`` is ``ec2``. Valid ``product`` names are:
-
-    .. code-block:: yaml
-
-        - autoscaling (Auto Scaling)
-        - cloudformation (CloudFormation)
-        - ec2 (Elastic Compute Cloud)
-        - elasticache (ElastiCache)
-        - elasticbeanstalk (Elastic BeanStalk)
-        - elasticloadbalancing (Elastic Load Balancing)
-        - elasticmapreduce (Elastic MapReduce)
-        - iam (Identity and Access Management)
-        - importexport (Import/Export)
-        - monitoring (CloudWatch)
-        - rds (Relational Database Service)
-        - simpledb (SimpleDB)
-        - sns (Simple Notification Service)
-        - sqs (Simple Queue Service)
+    Perform a query against AWS services using Signature Version 2 Signing Process.
     """
     if params is None:
         params = {}
@@ -486,7 +418,6 @@ def query(
         prov_dict.get(f"{product}_api_version", DEFAULT_AWS_API_VERSION),
     )
 
-    # Fallback to ec2's id & key if none is found, for this component
     if not prov_dict.get("id", None):
         prov_dict["id"] = providers.get(provider, {}).get("ec2", {}).get("id", {})
         prov_dict["key"] = providers.get(provider, {}).get("ec2", {}).get("key", {})
@@ -526,7 +457,6 @@ def query(
             root = ET.fromstring(exc.response.content)
             data = xml.to_dict(root)
 
-            # check to see if we should retry the query
             err_code = data.get("Errors", {}).get("Error", {}).get("Code", "")
             if attempts < AWS_MAX_RETRIES and err_code and err_code in AWS_RETRY_CODES:
                 attempts += 1
@@ -584,9 +514,7 @@ def query(
 
 def get_region_from_metadata():
     """
-    Try to get region from instance identity document and cache it
-
-    .. versionadded:: 2015.5.6
+    Try to get region from instance identity document and cache it.
     """
     global __Location__
 
@@ -596,7 +524,6 @@ def get_region_from_metadata():
         )
         return None
 
-    # Cached region
     if __Location__ != "":
         return __Location__
 
@@ -604,7 +531,6 @@ def get_region_from_metadata():
         result = get_metadata("dynamic/instance-identity/document")
     except requests.exceptions.RequestException:
         log.warning("Failed to get AWS region from instance metadata.", exc_info=True)
-        # Do not try again
         __Location__ = "do-not-get-from-metadata"
         return None
 
@@ -637,3 +563,36 @@ def get_location(opts=None, provider=None):
     if ret is None:
         ret = DEFAULT_LOCATION
     return ret
+
+
+def _retry_get_url(url, num_retries=10, timeout=5):
+    """
+    Retry grabbing a URL.
+    """
+    for i in range(0, num_retries):
+        exc = None
+        try:
+            result = requests.get(url, timeout=timeout, proxies={"http": ""})
+            if hasattr(result, "text"):
+                return result.text
+            elif hasattr(result, "content"):
+                return result.content
+            else:
+                return ""
+        except requests.exceptions.HTTPError as exc:
+            return ""
+        except Exception as exc:  # pylint: disable=broad-except
+            pass
+
+        log.warning("Caught exception reading from URL. Retry no. %s", i)
+        log.warning(pprint.pformat(exc))
+        time.sleep(2**i)
+    log.error("Failed to read from URL for %s times. Giving up.", num_retries)
+    return ""
+
+
+def _convert_key_to_str(key):
+    """
+    Stolen completely from boto.providers
+    """
+    return key
