@@ -1425,7 +1425,7 @@ def deploy_windows(
                 salt.utils.smb.delete_file(
                     f"salttemp\\{installer}", "C$", conn=smb_conn
                 )
-                salt.utils.smb.delete_directory("salttemp", "C$", conn=smb_conn)
+                salt.utils.smb.delete_directory("salttemp", "C$", conn=smb_conn, log=True)
         # Shell out to psexec to ensure salt-minion service started
         if use_winrm:
             winrm_cmd(winrm_session, "net", ["stop", "salt-minion"])

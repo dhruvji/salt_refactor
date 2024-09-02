@@ -359,10 +359,15 @@ def _delete_directory_smbprotocol(
 
 
 def delete_directory(
-    path, share="C$", conn=None, host=None, username=None, password=None
+    path, share="C$", conn=None, host=None, username=None, password=None, log=False
 ):
+    if log:
+        log.info(f"Deleting directory at path: {path}, share: {share}")
+
     if HAS_SMBPROTOCOL:
         return _delete_directory_smbprotocol(
             path, share, conn=conn, host=host, username=username, password=password
         )
+
     raise MissingSmb("SMB library required (impacket or smbprotocol)")
+
