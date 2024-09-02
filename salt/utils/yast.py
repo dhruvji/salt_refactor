@@ -11,7 +11,7 @@ import salt.utils.xmlutil as xml
 import salt.utils.yaml
 
 
-def mksls(src, dst=None):
+def autoyast_to_sls(src, dst=None):
     """
     Convert an AutoYAST file to an SLS file
     """

@@ -907,7 +907,7 @@ def parse_zfcp(rule):
     return args
 
 
-def mksls(src, dst=None):
+def kickstart_to_sls(src, dst=None):
     """
     Convert a kickstart file to an SLS file
     """

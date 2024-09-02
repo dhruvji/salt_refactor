@@ -11,7 +11,7 @@ import salt.utils.stringutils
 import salt.utils.yaml
 
 
-def mksls(src, dst=None):
+def preseed_to_sls(src, dst=None):
     """
     Convert a preseed file to an SLS file
     """
