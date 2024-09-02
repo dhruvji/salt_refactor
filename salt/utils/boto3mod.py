@@ -33,6 +33,7 @@ import salt.loader.context
 import salt.utils.stringutils
 import salt.utils.versions
 from salt.exceptions import SaltInvocationError
+from salt.utils.botomod import paged_call as imported_paged_call
 
 # pylint: disable=import-error
 try:
@@ -284,18 +285,7 @@ def assign_funcs(
 
 
 def paged_call(function, *args, **kwargs):
-    """Retrieve full set of values from a boto3 API call that may truncate
-    its results, yielding each page as it is obtained.
-    """
-    marker_flag = kwargs.pop("marker_flag", "NextMarker")
-    marker_arg = kwargs.pop("marker_arg", "Marker")
-    while True:
-        ret = function(*args, **kwargs)
-        marker = ret.get(marker_flag)
-        yield ret
-        if not marker:
-            break
-        kwargs[marker_arg] = marker
+    return imported_paged_call(function, *args, **kwargs)
 
 
 def ordered(obj):
