@@ -19,7 +19,7 @@ import salt.crypt
 import salt.master
 import salt.payload
 import salt.transport.frame
-import salt.utils.channel
+import salt.utils.transport
 import salt.utils.event
 import salt.utils.files
 import salt.utils.minions
@@ -760,7 +760,7 @@ class PubServerChannel:
         presence_events = False
         if opts.get("presence_events", False):
             tcp_only = True
-            for transport, _ in salt.utils.channel.iter_transport_opts(opts):
+            for transport, _ in salt.utils.transport.iter_transport_opts(opts):
                 if transport != "tcp":
                     tcp_only = False
             if tcp_only:

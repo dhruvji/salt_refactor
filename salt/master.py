@@ -59,7 +59,7 @@ import salt.wheel
 from salt.config import DEFAULT_INTERVAL
 from salt.defaults import DEFAULT_TARGET_DELIM
 from salt.transport import TRANSPORTS
-from salt.utils.channel import iter_transport_opts
+from salt.utils.transport import iter_transport_opts
 from salt.utils.debug import (
     enable_sigusr1_handler,
     enable_sigusr2_handler,
