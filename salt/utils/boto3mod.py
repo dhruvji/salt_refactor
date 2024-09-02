@@ -33,6 +33,8 @@ import salt.loader.context
 import salt.utils.stringutils
 import salt.utils.versions
 from salt.exceptions import SaltInvocationError
+from salt.utils.botomod import exactly_n as imported_exactly_n
+from salt.utils.botomod import exactly_one as imported_exactly_one
 
 # pylint: disable=import-error
 try:
@@ -250,12 +252,11 @@ def exactly_n(l, n=1):
     Tests that exactly N items in an iterable are "truthy" (neither None,
     False, nor 0).
     """
-    i = iter(l)
-    return all(any(i) for j in range(n)) and not any(i)
+    return imported_exactly_n(l, n)
 
 
 def exactly_one(l):
-    return exactly_n(l)
+    return imported_exactly_one(l)
 
 
 def assign_funcs(
