@@ -1028,7 +1028,7 @@ class AsyncAuth:
                     # service manager to immediately restart the service to
                     # avoid overloading the system
                     time.sleep(random.randint(10, 20))
-                    sys.exit(salt.defaults.exitcodes.EX_NOPERM)
+                    sys.exit(salt.defaults.exitcodes.EX_PERM_DENIED)
             # Has the master returned that it's maxed out with minions?
             elif payload["ret"] == "full":
                 return "full"

@@ -35,7 +35,7 @@ EX_UNAVAILABLE = 69  # service unavailable
 EX_SOFTWARE = 70  # internal software error
 EX_CANTCREAT = 73  # can't create (user) output file
 EX_TEMPFAIL = 75  # temp failure; user is invited to retry
-EX_NOPERM = 77  # permission denied
+EX_PERM_DENIED = 77  # permission denied
 
 # The Salt specific exit codes are defined below:
 
