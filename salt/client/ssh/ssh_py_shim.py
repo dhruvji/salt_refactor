@@ -27,7 +27,7 @@ EX_THIN_DEPLOY = 11
 EX_THIN_CHECKSUM = 12
 EX_MOD_DEPLOY = 13
 EX_SCP_NOT_FOUND = 14
-EX_CANTCREAT = 73
+EX_CANTCREATE = 73
 
 
 class OptionsContainer:
@@ -298,7 +298,7 @@ def main(argv):  # pylint: disable=W0613
                     OPTIONS.saltdir
                 )
             )
-            sys.exit(EX_CANTCREAT)
+            sys.exit(EX_CANTCREATE)
 
         if not os.path.exists(OPTIONS.saltdir):
             need_deployment()

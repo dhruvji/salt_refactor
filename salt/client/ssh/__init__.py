@@ -1720,7 +1720,7 @@ ARGS = {arguments}\n'''.format(
                 "No scp binary. openssh-clients package required",
             ),
             (
-                (salt.defaults.exitcodes.EX_CANTCREAT,),
+                (salt.defaults.exitcodes.EX_CANTCREATE,),
                 "salt path .* exists but is not a directory",
                 "A necessary path for salt thin unexpectedly exists:\n " + stderr,
             ),
