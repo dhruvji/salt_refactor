@@ -126,12 +126,14 @@ def get_placement_solver(service_instance):
     return profile_manager
 
 
-def get_capability_definitions(profile_manager):
+def get_capability_definitions(profile_manager, log=False):
     """
     Returns a list of all capability definitions.
 
     profile_manager
         Reference to the profile manager.
+    log
+        Boolean flag to enable or disable logging.
     """
     res_type = pbm.profile.ResourceType(
         resourceType=pbm.profile.ResourceTypeEnum.STORAGE
@@ -139,21 +141,31 @@ def get_capability_definitions(profile_manager):
     try:
         cap_categories = profile_manager.FetchCapabilityMetadata(res_type)
     except vim.fault.NoPermission as exc:
-        log.exception(exc)
+        if log:
+            log.exception(exc)
         raise VMwareApiError(
             f"Not enough permissions. Required privilege: {exc.privilegeId}"
         )
     except vim.fault.VimFault as exc:
-        log.exception(exc)
+        if log:
+            log.exception(exc)
         raise VMwareApiError(exc.msg)
     except vmodl.RuntimeFault as exc:
-        log.exception(exc)
+        if log:
+            log.exception(exc)
         raise VMwareRuntimeError(exc.msg)
+
+    if log:
+        log.info("Successfully fetched capability metadata")
+
     cap_definitions = []
     for cat in cap_categories:
         cap_definitions.extend(cat.capabilityMetadata)
-    return cap_definitions
 
+    if log:
+        log.info("Successfully compiled capability definitions")
+
+    return cap_definitions
 
 def get_policies_by_id(profile_manager, policy_ids):
     """
