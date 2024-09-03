@@ -908,7 +908,7 @@ class LogLevelMixIn(metaclass=MixInMeta):
         try:
             salt._logging.setup_logging()
         except salt.exceptions.LoggingRuntimeError as exc:
-            self.exit(salt.defaults.exitcodes.EX_UNAVAILABLE, str(exc))
+            self.exit(salt.defaults.exitcodes.EX_UNAVAIL, str(exc))
 
     def __verify_logging(self):
         verify_log(self.config)

@@ -303,7 +303,7 @@ def test_syslog_file_not_found(salt_minion, salt_call_cli, tmp_path):
             )
             assert ret.data == "foo", ret
         else:
-            assert ret.returncode == salt.defaults.exitcodes.EX_UNAVAILABLE
+            assert ret.returncode == salt.defaults.exitcodes.EX_UNAVAIL
             assert "Failed to setup the Syslog logging handler" in ret.stderr
 
 

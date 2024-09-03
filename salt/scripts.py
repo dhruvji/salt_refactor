@@ -491,7 +491,7 @@ def salt_cloud():
 
         log.error("Error importing salt cloud: %s", e)
         print("salt-cloud is not available in this system")
-        sys.exit(salt.defaults.exitcodes.EX_UNAVAILABLE)
+        sys.exit(salt.defaults.exitcodes.EX_UNAVAIL)
     if "" in sys.path:
         sys.path.remove("")
 
