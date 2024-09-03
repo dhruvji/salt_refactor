@@ -162,7 +162,7 @@ def sls(mods, saltenv="base", test=None, exclude=None, **kwargs):
         initial_pillar=initial_pillar,
     ) as st_:
         if not _check_pillar(kwargs, st_.opts["pillar"]):
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             err = ["Pillar failed to render with the following messages:"]
             err += st_.opts["pillar"]["_errors"]
             return err
@@ -664,7 +664,7 @@ def highstate(test=None, **kwargs):
         initial_pillar=initial_pillar,
     ) as st_:
         if not _check_pillar(kwargs, st_.opts["pillar"]):
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             err = ["Pillar failed to render with the following messages:"]
             err += st_.opts["pillar"]["_errors"]
             return err
@@ -754,7 +754,7 @@ def top(topfn, test=None, **kwargs):
         initial_pillar=initial_pillar,
     ) as st_:
         if not _check_pillar(kwargs, st_.opts["pillar"]):
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             err = ["Pillar failed to render with the following messages:"]
             err += st_.opts["pillar"]["_errors"]
             return err
@@ -841,7 +841,7 @@ def show_highstate(**kwargs):
         initial_pillar=initial_pillar,
     ) as st_:
         if not _check_pillar(kwargs, st_.opts["pillar"]):
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             err = ["Pillar failed to render with the following messages:"]
             err += st_.opts["pillar"]["_errors"]
             return err
@@ -883,7 +883,7 @@ def show_lowstate(**kwargs):
         initial_pillar=_get_initial_pillar(opts),
     ) as st_:
         if not _check_pillar(kwargs, st_.opts["pillar"]):
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             err = ["Pillar failed to render with the following messages:"]
             err += st_.opts["pillar"]["_errors"]
             return err
@@ -950,7 +950,7 @@ def sls_id(id_, mods, test=None, queue=False, **kwargs):
     ) as st_:
 
         if not _check_pillar(kwargs, st_.opts["pillar"]):
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             err = ["Pillar failed to render with the following messages:"]
             err += __pillar__["_errors"]
             return err
@@ -1019,7 +1019,7 @@ def show_sls(mods, saltenv="base", test=None, **kwargs):
         initial_pillar=initial_pillar,
     ) as st_:
         if not _check_pillar(kwargs, st_.opts["pillar"]):
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             err = ["Pillar failed to render with the following messages:"]
             err += st_.opts["pillar"]["_errors"]
             return err
@@ -1079,7 +1079,7 @@ def show_low_sls(mods, saltenv="base", test=None, **kwargs):
         initial_pillar=initial_pillar,
     ) as st_:
         if not _check_pillar(kwargs, st_.opts["pillar"]):
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             err = ["Pillar failed to render with the following messages:"]
             err += st_.opts["pillar"]["_errors"]
             return err

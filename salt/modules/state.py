@@ -583,7 +583,7 @@ def template(tem, queue=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             raise CommandExecutionError("Pillar failed to render", info=errors)
 
         if not tem.endswith(".sls"):
@@ -1174,7 +1174,7 @@ def highstate(test=None, queue=None, state_events=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             return ["Pillar failed to render with the following messages:"] + errors
 
         st_.push_active()
@@ -1445,7 +1445,7 @@ def sls(
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             return ["Pillar failed to render with the following messages:"] + errors
 
         orchestration_jid = kwargs.get("orchestration_jid")
@@ -1596,7 +1596,7 @@ def top(topfn, test=None, queue=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             return ["Pillar failed to render with the following messages:"] + errors
 
         st_.push_active()
@@ -1671,7 +1671,7 @@ def show_highstate(queue=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             raise CommandExecutionError("Pillar failed to render", info=errors)
 
         st_.push_active()
@@ -1709,7 +1709,7 @@ def show_lowstate(queue=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             raise CommandExecutionError("Pillar failed to render", info=errors)
 
         st_.push_active()
@@ -1782,7 +1782,7 @@ def show_states(queue=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             raise CommandExecutionError("Pillar failed to render", info=errors)
 
         st_.push_active()
@@ -1896,7 +1896,7 @@ def sls_id(id_, mods, test=None, queue=None, state_events=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             return ["Pillar failed to render with the following messages:"] + errors
 
         split_mods = salt.utils.args.split_input(mods)
@@ -2010,7 +2010,7 @@ def show_low_sls(mods, test=None, queue=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             raise CommandExecutionError("Pillar failed to render", info=errors)
 
         mods = salt.utils.args.split_input(mods)
@@ -2105,7 +2105,7 @@ def show_sls(mods, test=None, queue=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             raise CommandExecutionError("Pillar failed to render", info=errors)
 
         mods = salt.utils.args.split_input(mods)
@@ -2202,7 +2202,7 @@ def show_top(queue=None, **kwargs):
     with st_:
         errors = _get_pillar_errors(kwargs, pillar=st_.opts["pillar"])
         if errors:
-            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAILURE
+            __context__["retcode"] = salt.defaults.exitcodes.EX_PILLAR_FAIL
             raise CommandExecutionError("Pillar failed to render", info=errors)
 
         errors = []
