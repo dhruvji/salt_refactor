@@ -101,7 +101,7 @@ def _set_retcode(ret, highstate=None):
         __context__["retcode"] = salt.defaults.exitcodes.EX_STATE_COMPILER_ERROR
         return
     if not __utils__["state.check_result"](ret, highstate=highstate):
-        __context__["retcode"] = salt.defaults.exitcodes.EX_STATE_FAILURE
+        __context__["retcode"] = salt.defaults.exitcodes.EX_STATE_FAIL
 
 
 def _get_pillar_errors(kwargs, pillar=None):
@@ -472,7 +472,7 @@ def low(data, queue=None, **kwargs):
     if isinstance(ret, list):
         __context__["retcode"] = salt.defaults.exitcodes.EX_STATE_COMPILER_ERROR
     if __utils__["state.check_result"](ret):
-        __context__["retcode"] = salt.defaults.exitcodes.EX_STATE_FAILURE
+        __context__["retcode"] = salt.defaults.exitcodes.EX_STATE_FAIL
     return ret
 
 

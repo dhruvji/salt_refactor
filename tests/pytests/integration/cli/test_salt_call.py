@@ -368,7 +368,7 @@ def test_context_retcode_salt_call(salt_call_cli):
     ret = salt_call_cli.run(
         "--retcode-passthrough", "state.single", "test.fail_without_changes", "foo"
     )
-    assert ret.returncode == salt.defaults.exitcodes.EX_STATE_FAILURE, ret
+    assert ret.returncode == salt.defaults.exitcodes.EX_STATE_FAIL, ret
 
     # Test a state compiler error
     ret = salt_call_cli.run("state.apply", "thisslsfiledoesnotexist")

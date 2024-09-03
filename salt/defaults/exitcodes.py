@@ -9,7 +9,7 @@ prefix or in `sysexits.h`).
 EX_GENERIC = 1
 
 EX_STATE_COMPILER_ERROR = 1
-EX_STATE_FAILURE = 2
+EX_STATE_FAIL = 2
 EX_PILLAR_FAILURE = 5
 
 # Salt SSH "Thin" deployment failures
